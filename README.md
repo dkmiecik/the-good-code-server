@@ -5,6 +5,14 @@ This project was created with stack:
 - NodeJS
 - Express
 
+## How to start?
+
+Run in the root directory
+
+### `yarn install`
+
+### `yarn dev`
+
 ## Available Scripts
 
 In the project directory, you can run:
