@@ -1,19 +1,11 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import { faker } from '@faker-js/faker';
+import { getItems, addItem, checkItemById, createItem, Item, removeItem, toggleSelectedItem } from './items';
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
-
-interface Item {
-  name: string;
-  id: string;
-  selected: boolean;
-}
-
-let ITEMS: Item[] = [];
 
 app.use(express.json());
 
@@ -22,7 +14,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.get('/items', (req: Request, res: Response) => {
-  res.send(ITEMS);
+  res.send(getItems());
 });
 
 app.put('/item', (req: Request, res: Response) => {
@@ -31,8 +23,8 @@ app.put('/item', (req: Request, res: Response) => {
   } = req;
 
   if (name) {
-    const item = { name, id: faker.datatype.uuid(), selected: false };
-    ITEMS.push(item);
+    const item: Item = createItem(name);
+    addItem(item);
     res.json(item);
   } else {
     res.sendStatus(400);
@@ -45,13 +37,8 @@ app.post('/item/:id', (req: Request, res: Response) => {
   } = req;
 
   if (id) {
-    if (ITEMS.some((item) => item.id === id)) {
-      ITEMS = ITEMS.map((item) => {
-        if (item.id === id) {
-          item.selected = !item.selected;
-        }
-        return item;
-      });
+    if (checkItemById(id)) {
+      toggleSelectedItem(id);
       res.sendStatus(200);
     } else {
       res.sendStatus(404);
@@ -66,8 +53,8 @@ app.delete('/item/:id', (req: Request, res: Response) => {
     params: { id },
   } = req;
 
-  if (ITEMS.some((item) => item.id === id)) {
-    ITEMS = ITEMS.filter((item) => item.id !== id);
+  if (checkItemById(id)) {
+    removeItem(id);
     res.sendStatus(200);
   } else {
     res.sendStatus(404);
